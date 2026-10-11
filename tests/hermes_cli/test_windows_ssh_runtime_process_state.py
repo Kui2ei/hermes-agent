@@ -46,6 +46,8 @@ def _serve(nonce=NONCE):
     [
         [PY, "-I", "-c", BOOT],          # source launcher runtime command (the regression)
         [PY, "-I", "-E", "-c", BOOT],    # several isolation flags
+        [PY, "-I", "-X", "utf8", "-c", BOOT],   # value-taking option, separate token
+        [PY, "-Xutf8", "-W", "ignore", "-c", BOOT],  # attached and separate value forms
         [PY, "-c", BOOT],                # previous shape keeps working
         [PY, "-I", "-m", "hermes_cli.main"],
         [PY, "-m", "hermes_cli.main"],
