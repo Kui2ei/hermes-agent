@@ -10,6 +10,7 @@ Identity stays anchored by creation time + owner nonce; the flag skip only widen
 
 from __future__ import annotations
 
+import os
 import types
 
 import pytest
@@ -18,8 +19,11 @@ from hermes_cli import windows_ssh_runtime as w
 
 NONCE = "b3f728cb78ba540f"
 CREATED_NS = 1_791_713_679_000_000_000
-HERMES = r"C:\hermes\ssh-runtime\hermes.exe"
-PY = r"C:\hermes\tools\python\python.exe"
+# Host-native paths: process_state() uses the host os.path, and this mocked test runs on every
+# lane (a Windows-style literal would not split on POSIX and every positive row would fail).
+HERMES = os.path.abspath(os.path.join("hermes", "ssh-runtime", "hermes.exe"))
+PY = os.path.abspath(os.path.join("hermes", "tools", "python", "python.exe"))
+NOT_PYTHON = os.path.abspath(os.path.join("evil", "tool.exe"))
 BOOT = "import hermes_bootstrap; runpy.run_module('hermes_cli.main', run_name='__main__')"
 
 
@@ -71,5 +75,5 @@ def test_python_running_something_else_is_not_owned(monkeypatch):
 
 
 def test_flag_skip_does_not_accept_a_non_python_arg0(monkeypatch):
-    _fake_psutil(monkeypatch, [r"C:\evil\tool.exe", "-I", "-c", BOOT] + _serve())
+    _fake_psutil(monkeypatch, [NOT_PYTHON, "-I", "-c", BOOT] + _serve())
     assert w.process_state(4242, CREATED_NS, HERMES, NONCE)["owned"] is False
